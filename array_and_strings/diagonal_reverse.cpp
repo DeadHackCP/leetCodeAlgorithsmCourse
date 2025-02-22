@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -8,35 +9,37 @@ class Solution
 public:
   vector<int> findDiagonalOrder(vector<vector<int>> &mat)
   {
-    vector<int> diagonalTraverse;
-    diagonalTraverse.push_back(mat[0][0]);
-    vector<int> coordinates = {0, 0};
-    bool reach_limit = false;
-    for (size_t k = 1; k <= 2 * mat.size() - 2; k++)
-    {
-      int limit_cycle = !reach_limit ? k : mat.size() - (k - mat.size());
-      for (size_t m = 1; m <= limit_cycle; m++)
-      {
-        if (m == limit_cycle)
-        {
-          if (k == mat.size())
-            reach_limit = !reach_limit;
-          if (!reach_limit)
-            coordinates[m % 2] = coordinates[m % 2] + 1;
-          else
-            coordinates[!(m % 2)] = coordinates[!(m % 2)] + 1;
+    if (mat.empty() || mat[0].empty())
+      return {}; // Handle edge case
 
-          diagonalTraverse.push_back(mat[coordinates[0]][coordinates[1]]);
-        }
-        else
-        {
-          coordinates[0] = coordinates[0] + (k % 2 ? -1 : 1);
-          coordinates[1] = coordinates[1] - (k % 2 ? -1 : 1);
-          diagonalTraverse.push_back(mat[coordinates[0]][coordinates[1]]);
-        }
+    int m = mat.size();    // Number of rows
+    int n = mat[0].size(); // Number of columns
+    vector<int> result;
+
+    for (int diag = 0; diag < m + n - 1; ++diag)
+    {   
+      // Determine the starting point of the current diagonal
+      int row = (diag < n) ? 0 : diag - n + 1;
+      int col = (diag < n) ? diag : n - 1;
+
+      // Collect elements in the current diagonal
+      vector<int> diagonalElements;
+      while (row < m && col >= 0)
+      {
+        diagonalElements.push_back(mat[row][col]);
+        ++row;
+        --col;
       }
+
+      // Reverse the diagonal if needed (based on its index)
+      if (diag % 2 == 0)
+        reverse(diagonalElements.begin(), diagonalElements.end());
+
+      // Append the diagonal elements to the result
+      result.insert(result.end(), diagonalElements.begin(), diagonalElements.end());
     }
-    return diagonalTraverse;
+
+    return result;
   }
 };
 
